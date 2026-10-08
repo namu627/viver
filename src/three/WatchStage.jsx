@@ -271,11 +271,13 @@ export default function WatchStage({ onReady, loaded, reducedMotion }) {
           pin: true,
           scrub: 1,
           anticipatePin: 1,
-          onUpdate: (st) => {
-            const t = st.progress * total
-            const idx = Math.round((t - T0 - 0.4) / CH)
-            dots.forEach((d, i) => d.classList.toggle('is-on', i === idx && t > T0 && t < tE))
-          },
+        },
+        // 하단 인덱스는 스크롤 위치가 아니라 '부드럽게 따라가는 타임라인 시간'으로 계산해야
+        // 카메라·패널(같은 타임라인)과 정확히 같은 순간에 넘어간다
+        onUpdate: () => {
+          const t = tl.time()
+          const idx = Math.floor((t - T0) / CH)
+          dots.forEach((d, i) => d.classList.toggle('is-on', i === idx && t >= T0 && t < tE))
         },
       })
 
@@ -293,23 +295,28 @@ export default function WatchStage({ onReady, loaded, reducedMotion }) {
         .to(S, { shiftX: 0, shiftY: 0, duration: 1.2 }, 0.1)
         .fromTo('.ov-caption', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 1.4)
         .to('.ov-caption', { autoAlpha: 0, y: -24, duration: 0.4, ease: 'power1.in' }, T0 - 0.35)
-        .to('.ch-index', { autoAlpha: 1, duration: 0.3 }, T0 - 0.2)
+        .to('.ch-index', { autoAlpha: 1, duration: 0.3 }, T0 - 0.3)
 
-      // 2) 부품별 챕터: 카메라가 부품으로 이동하고, 패널이 좌우에서 미끄러져 들어온다
+      // 2) 부품별 챕터: 챕터 경계(b)를 기준으로 모든 전환을 대칭으로 맞춘다
+      //    b-W ~ b   : 이전 패널이 빠져나감
+      //    b-W ~ b+W : 카메라가 다음 부품으로 이동 (정확히 b에서 중간 지점)
+      //    b         : 하단 인덱스가 넘어감
+      //    b ~ b+W   : 다음 패널이 들어옴
+      const W = 0.4
       panels.forEach((p, i) => {
-        const t = T0 + i * CH
+        const b = T0 + i * CH
         const s = side(i)
         const from = -(mobile ? 70 : 40) * s
-        tl.to(S, { focus: i, duration: 0.8 }, t)
-          .to(S, { shiftX: mobile ? 0 : 0.2 * s, shiftY: mobile ? 0.17 : 0, duration: 0.8 }, t)
-          .fromTo(p, { autoAlpha: 0, xPercent: from }, { autoAlpha: 1, xPercent: 0, duration: 0.55, ease: 'power3.out' }, t + 0.3)
-          .fromTo(p.querySelectorAll('[data-in]'), { autoAlpha: 0, x: -24 * s }, { autoAlpha: 1, x: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out' }, t + 0.4)
-          .to(p, { autoAlpha: 0, xPercent: from * 0.6, duration: 0.35, ease: 'power2.in' }, t + CH - 0.2)
+        tl.to(S, { focus: i, duration: W * 2, ease: 'power2.inOut' }, b - W)
+          .to(S, { shiftX: mobile ? 0 : 0.2 * s, shiftY: mobile ? 0.17 : 0, duration: W * 2, ease: 'power2.inOut' }, b - W)
+          .fromTo(p, { autoAlpha: 0, xPercent: from }, { autoAlpha: 1, xPercent: 0, duration: W + 0.05, ease: 'power3.out' }, b)
+          .fromTo(p.querySelectorAll('[data-in]'), { autoAlpha: 0, x: -24 * s }, { autoAlpha: 1, x: 0, duration: W, stagger: 0.04, ease: 'power2.out' }, b + 0.05)
+          .to(p, { autoAlpha: 0, xPercent: from * 0.6, duration: W, ease: 'power2.in' }, b + CH - W)
       })
 
       // 3) 재조립 → Why VIVER
-      tl.to('.ch-index', { autoAlpha: 0, duration: 0.3 }, tE)
-        .to(S, { focus: -1, duration: 1 }, tE)
+      tl.to('.ch-index', { autoAlpha: 0, duration: 0.3 }, tE - 0.3)
+        .to(S, { focus: -1, duration: 1.2 }, tE - W) // 마지막 패널이 빠지는 동시에 카메라가 물러남
         .to(S, { explode: 0, duration: 1.2 }, tE + 0.2)
         .to(S, { turn: 0, strap: 0, duration: 1.2 }, tE + 0.3)
         .to(S, { shiftX: mobile ? 0 : -0.22, shiftY: mobile ? (window.innerHeight < 740 ? 0.3 : 0.22) : 0, duration: 1.2 }, tE + 0.3)
