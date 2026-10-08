@@ -602,8 +602,8 @@ main,
   transition: filter 0.6s var(--ease-out);
 }
 
-.card:hover .shot img,
-.ch-panel .shot img {
+.card:hover .shot img:not(.gallery-bg),
+.ch-panel .shot img:not(.gallery-bg) {
   filter: grayscale(0.2);
 }
 
@@ -652,7 +652,8 @@ main,
   width: 120%;
   height: 120%;
   object-fit: cover;
-  filter: blur(24px) brightness(0.35) grayscale(1);
+  /* 세로 사진 양옆 빈 곳만 은은하게 채우는 흐린 배경 — 호버해도 그대로 유지 */
+  filter: blur(28px) brightness(0.22) grayscale(1);
 }
 
 .shot .gallery-img {
