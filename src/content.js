@@ -19,12 +19,14 @@ export const overview = {
 
 // 부품별 챕터 — part 값은 3D 시계의 부품 키와 같아야 한다.
 // 애니메이션이 주인공이라 "선언 한 줄 + 프로젝트 이름"만. 세부 근거는 Notion에서.
+// 부품 순서는 실제 분해 순서(겉→속)로 고정, 메시지는 서사 순서로 배치:
+// 대표 정체성으로 열고 → 일하는 방식 → 성숙한 자기인식으로 닫는다. 프로젝트는 부품마다 겹치지 않게.
 export const chapters = [
-  { part: 'crystal', label: 'Crystal', title: '만든 것을 냉정하게 봅니다.', project: 'MakeBlack' },
+  { part: 'crystal', label: 'Crystal', title: '생각을 오래 굴립니다.', project: 'OptiMeal' },
   { part: 'dial', label: 'Dial & Hands', title: '막히는 길목을 먼저 그립니다.', project: 'my stella' },
-  { part: 'case', label: 'Case', title: '목적이 먼저, 도구는 그다음.', project: 'OptiMeal · 드론 홍보영상' },
-  { part: 'movement', label: 'Movement', title: '생각을 오래 굴립니다.', project: 'OptiMeal · my stella' },
-  { part: 'rotor', label: 'Rotor & Caseback', title: '맡은 자리에서 증명합니다.', project: 'WiFi CSI · moodico' },
+  { part: 'case', label: 'Case', title: '목적이 먼저, 도구는 그다음.', project: '다온아이앤씨 드론 홍보영상' },
+  { part: 'movement', label: 'Movement', title: '맡은 자리에서 증명합니다.', project: 'WiFi CSI · moodico' },
+  { part: 'rotor', label: 'Rotor & Caseback', title: '만든 것을 냉정하게 봅니다.', project: 'MakeBlack' },
 ]
 
 export const why = {
