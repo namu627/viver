@@ -162,9 +162,11 @@ export default function WatchStage({ onReady, loaded, reducedMotion }) {
         const overviewCenter = new THREE.Vector3(0, 0, 0.35 * S.explode).applyMatrix4(root.matrixWorld)
         tgt.copy(overviewCenter).lerp(tmp, fAmt)
         const widthFit = Math.max(1, 0.85 / camera.aspect)
-        const heroDist = 14.5 * widthFit
+        // 키가 작은 폰(예: 360×640)이나 세로 태블릿은 아래쪽 글과 겹치지 않게 조립된 시계를 더 작게
+        const heroDist = 14.5 * widthFit * (portrait && (h < 740 || w / h > 0.6) ? 1.45 : 1) // 짧은 폰·세로 태블릿
         const overviewDist = (portrait ? 22 : 27) * widthFit
-        const focusDist = lerp(FOCUS_DIST[parts[i0]], FOCUS_DIST[parts[i1]], k) * widthFit
+        // 세로 화면에선 부품이 비스듬히 누워 가로로 길어지므로 조금 더 물러나 여백을 둔다
+        const focusDist = lerp(FOCUS_DIST[parts[i0]], FOCUS_DIST[parts[i1]], k) * widthFit * (portrait ? 1.18 : 1)
         const dist = lerp(lerp(heroDist, overviewDist, S.explode), focusDist, fAmt)
         camera.position.copy(tgt).addScaledVector(camDir, dist)
         camera.lookAt(tgt)
@@ -299,7 +301,7 @@ export default function WatchStage({ onReady, loaded, reducedMotion }) {
         const s = side(i)
         const from = -(mobile ? 70 : 40) * s
         tl.to(S, { focus: i, duration: 0.8 }, t)
-          .to(S, { shiftX: mobile ? 0 : 0.2 * s, shiftY: mobile ? 0.2 : 0, duration: 0.8 }, t)
+          .to(S, { shiftX: mobile ? 0 : 0.2 * s, shiftY: mobile ? 0.17 : 0, duration: 0.8 }, t)
           .fromTo(p, { autoAlpha: 0, xPercent: from }, { autoAlpha: 1, xPercent: 0, duration: 0.55, ease: 'power3.out' }, t + 0.3)
           .fromTo(p.querySelectorAll('[data-in]'), { autoAlpha: 0, x: -24 * s }, { autoAlpha: 1, x: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out' }, t + 0.4)
           .to(p, { autoAlpha: 0, xPercent: from * 0.6, duration: 0.35, ease: 'power2.in' }, t + CH - 0.2)
@@ -310,7 +312,7 @@ export default function WatchStage({ onReady, loaded, reducedMotion }) {
         .to(S, { focus: -1, duration: 1 }, tE)
         .to(S, { explode: 0, duration: 1.2 }, tE + 0.2)
         .to(S, { turn: 0, strap: 0, duration: 1.2 }, tE + 0.3)
-        .to(S, { shiftX: mobile ? 0 : -0.22, shiftY: mobile ? 0.22 : 0, duration: 1.2 }, tE + 0.3)
+        .to(S, { shiftX: mobile ? 0 : -0.22, shiftY: mobile ? (window.innerHeight < 740 ? 0.3 : 0.22) : 0, duration: 1.2 }, tE + 0.3)
         .fromTo('.why-panel', { autoAlpha: 0, xPercent: 30 }, { autoAlpha: 1, xPercent: 0, duration: 0.6, ease: 'power3.out' }, tE + 1.1)
         .fromTo('.why-panel [data-in]', { autoAlpha: 0, x: 24 }, { autoAlpha: 1, x: 0, duration: 0.4, stagger: 0.06, ease: 'power2.out' }, tE + 1.2)
         .to({}, { duration: 0.4 }, total - 0.4)
